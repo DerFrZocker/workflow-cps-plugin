@@ -76,6 +76,8 @@ public class CpsScmFlowDefinition extends FlowDefinition {
     private final SCM scm;
     private final String scriptPath;
     private boolean lightweight;
+    private Boolean poll = true;
+    private Boolean changelog = true;
 
     @DataBoundConstructor
     public CpsScmFlowDefinition(SCM scm, String scriptPath) {
@@ -103,6 +105,24 @@ public class CpsScmFlowDefinition extends FlowDefinition {
     @DataBoundSetter
     public void setLightweight(boolean lightweight) {
         this.lightweight = lightweight;
+    }
+
+    public boolean isPoll() {
+        return poll != null ? poll : true;
+    }
+
+    @DataBoundSetter
+    public void setPoll(boolean poll) {
+        this.poll = poll;
+    }
+
+    public boolean isChangelog() {
+        return changelog != null ? changelog : true;
+    }
+
+    @DataBoundSetter
+    public void setChangelog(boolean changelog) {
+        this.changelog = changelog;
     }
 
     @Override
@@ -158,8 +178,8 @@ public class CpsScmFlowDefinition extends FlowDefinition {
             throw new IOException(node.getDisplayName() + " may be offline");
         }
         SCMStep delegate = new GenericSCMStep(scm);
-        delegate.setPoll(true);
-        delegate.setChangelog(true);
+        delegate.setPoll(isPoll());
+        delegate.setChangelog(isChangelog());
         FilePath acquiredDir;
         try (WorkspaceList.Lease lease = computer.getWorkspaceList().acquire(dir)) {
             dir.withSuffix("-scm-key.txt").write(scm.getKey(), "UTF-8");
